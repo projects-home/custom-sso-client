@@ -1,0 +1,106 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group 'com.lh.sso'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://localhost:8081/nexus/content/groups/public/'
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+}
+
+ext{
+    pac4jVersion="2.3.1"
+    casClientVersion="3.5.0"
+
+    appName = "lh-sso-client"
+
+    builtBy = "gradle 4.2"
+    publishUserName = "admin"
+    publishUserPassword = "admin123"
+    publishURL = "http://localhost:8081/nexus/content/repositories/snapshots/"
+    mavenPublicURL = "http://localhost:8081/nexus/content/groups/public/"
+}
+
+dependencies {
+    compile "com.lh:lh-sdk:1.0-SNAPSHOT"
+    compile 'net.sf.ehcache:ehcache:2.10.5'
+    compile "org.jasig.cas.client:cas-client-core:${casClientVersion}"
+    compile "org.pac4j:pac4j-cas:${pac4jVersion}"
+    compile "org.pac4j:pac4j-jwt:${pac4jVersion}"
+    compile "org.pac4j:pac4j-http:${pac4jVersion}"
+    compile "javax.servlet:javax.servlet-api:3.1.0"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar{
+    baseName appName
+    include "com/lh/sso/client/**"
+    destinationDir file("$buildDir/libs/")
+    manifest {
+        attributes 'packageName': baseName, 'Built-By': builtBy, 'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+    }
+}
+
+publishing {
+    publications {
+        publishing.publications.create("${appName}", MavenPublication) {
+            groupId group
+            artifactId appName
+            artifact  jar
+            pom.withXml {
+                asNode().children().last() + {
+                    delegate.dependencies {
+                        delegate.dependency {
+                            delegate.groupId("org.jasig.cas.client")
+                            delegate.artifactId("cas-client-core")
+                            delegate.version(casClientVersion)
+                            delegate.exclusions{
+                                delegate.exclusion{
+                                    delegate.groupId("org.slf4j")
+                                    delegate.artifactId("log4j-over-slf4j")
+                                }
+                            }
+                        }
+                        delegate.dependency {
+                            delegate.groupId("org.pac4j")
+                            delegate.artifactId("pac4j-cas")
+                            delegate.version(pac4jVersion)
+                        }
+                        delegate.dependency {
+                            delegate.groupId("org.pac4j")
+                            delegate.artifactId("pac4j-jwt")
+                            delegate.version(pac4jVersion)
+                        }
+                        delegate.dependency {
+                            delegate.groupId("org.pac4j")
+                            delegate.artifactId("pac4j-http")
+                            delegate.version(pac4jVersion)
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    repositories {
+        maven {
+            url  publishURL
+            credentials {
+                username = publishUserName
+                password = publishUserPassword
+            }
+        }
+    }
+}
+
