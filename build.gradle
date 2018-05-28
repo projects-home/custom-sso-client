@@ -9,7 +9,7 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     maven {
-        url 'http://localhost:8081/nexus/content/groups/public/'
+        url 'http://192.168.3.230:8081/nexus/content/groups/public/'
     }
 }
 
@@ -27,8 +27,7 @@ ext{
     builtBy = "gradle 4.2"
     publishUserName = "admin"
     publishUserPassword = "admin123"
-    publishURL = "http://localhost:8081/nexus/content/repositories/snapshots/"
-    mavenPublicURL = "http://localhost:8081/nexus/content/groups/public/"
+    publishURL = "http://192.168.3.230:8081/nexus/content/repositories/snapshots/"
 }
 
 dependencies {
