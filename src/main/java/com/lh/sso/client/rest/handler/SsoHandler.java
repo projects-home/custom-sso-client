@@ -46,6 +46,15 @@ public final class SsoHandler extends Handler {
 
     @Override
     public void handle(String target, HttpServletRequest request, HttpServletResponse response, boolean[] isHandled) {
+        //跳过options请求
+        isHandled[0] = true;
+        if("OPTIONS".equals(request.getMethod())){
+            this.next.handle(target,request,response,isHandled);
+        }
+        String uri = request.getRequestURI();
+        if(isExclude(uri)){
+            this.next.handle(target,request,response,isHandled);
+        }
         isHandled[0] = true;
         final String accessToken = request.getHeader(SsoConstant.AUTH_TOKEN_IDENTITY);
         if(StrKit.isBlank(accessToken)){
@@ -66,10 +75,9 @@ public final class SsoHandler extends Handler {
                 tokenCache.remove(accessToken);
             }
             //用户缓存不存在
-            final String userId = request.getParameter("userId");
+            String userId = request.getParameter("userId");
             if(StrKit.isBlank(userId)){
-                ResponseData<String> res = new ResponseData<>(ResponseData.AJAX_STATUS_FAILURE,"认证请求中缺少用户信息");
-                HandlerKit.renderJsonResult(res,request,response,isHandled);
+                userId = "";
             }
             //进行认证
             try {
@@ -91,5 +99,21 @@ public final class SsoHandler extends Handler {
                 throw new SystemException("sso认证失败",e);
             }
         }
+    }
+
+    private boolean isExclude(String uri) {
+        if(StrKit.isBlank(uri)){
+            return true;
+        }
+        String exclude = this.ssoConfig.getExclude();
+        if(!StrKit.isBlank(exclude)){
+            String[] excludes = exclude.split(",");
+            for(String suffix : excludes){
+                if(!StrKit.isBlank(suffix.trim()) && uri.endsWith(suffix.trim().toLowerCase())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

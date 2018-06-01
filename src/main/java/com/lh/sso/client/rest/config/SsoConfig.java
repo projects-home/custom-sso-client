@@ -12,6 +12,7 @@ public class SsoConfig {
     private String loginUrl;
     private String prefix;
     private String serviceUrl;
+    private String exclude;
 
     public String getLoginUrl() {
         return loginUrl;
@@ -36,4 +37,13 @@ public class SsoConfig {
     public void setServiceUrl(String serviceUrl) {
         this.serviceUrl = serviceUrl;
     }
+
+    public String getExclude() {
+        return exclude;
+    }
+
+    public void setExclude(String exclude) {
+        this.exclude = exclude;
+    }
+
 }
