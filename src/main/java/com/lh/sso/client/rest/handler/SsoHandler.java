@@ -3,6 +3,7 @@ package com.lh.sso.client.rest.handler;
 import com.jfinal.handler.Handler;
 import com.jfinal.kit.StrKit;
 import com.jfinal.plugin.ehcache.CacheKit;
+import com.lh.common.sysmanager.SimpleEmpVo;
 import com.lh.sdk.config.ConfigManager;
 import com.lh.sdk.utils.HandlerKit;
 import com.lh.sdk.exception.SystemException;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * @author wangyongxin
@@ -88,7 +90,7 @@ public final class SsoHandler extends Handler {
                 CasRestProfile casRestProfile = new CasRestProfile(accessToken, userId);
                 TokenCredentials tokenCredentials = casRestClient.requestServiceTicket(ssoConfig.getServiceUrl(), casRestProfile, context);
                 CasProfile casProfile = casRestClient.validateServiceTicket(ssoConfig.getServiceUrl(), tokenCredentials, context);
-                Element userInfo = new Element(accessToken, casProfile,7200,3600 * 8);
+                Element userInfo = new Element(accessToken, assembleEmpInfo(casProfile),7200,3600 * 8);
                 userInfo.setVersion(System.currentTimeMillis());
                 tokenCache.put(userInfo);
                 if(next!=null){
@@ -99,6 +101,15 @@ public final class SsoHandler extends Handler {
                 throw new SystemException("sso认证失败",e);
             }
         }
+    }
+
+    private SimpleEmpVo assembleEmpInfo(CasProfile casProfile) {
+        Map<String, Object> attributes = casProfile.getAttributes();
+        SimpleEmpVo simpleEmpVo = new SimpleEmpVo();
+        simpleEmpVo.setUserCode((String) attributes.get("userCode"));
+        simpleEmpVo.setUserId((String) attributes.get("userId"));
+        simpleEmpVo.setUserName((String) attributes.get("userName"));
+        return simpleEmpVo;
     }
 
     private boolean isExclude(String uri) {

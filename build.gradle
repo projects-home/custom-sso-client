@@ -32,6 +32,7 @@ ext{
 
 dependencies {
     compile "com.lh:lh-sdk:1.0-SNAPSHOT"
+    compile "com.lh:lh-common:1.0-SNAPSHOT"
     compile 'net.sf.ehcache:ehcache:2.10.5'
     compile "org.jasig.cas.client:cas-client-core:${casClientVersion}"
     compile "org.pac4j:pac4j-cas:${pac4jVersion}"
