@@ -52,10 +52,12 @@ public final class SsoHandler extends Handler {
         isHandled[0] = true;
         if("OPTIONS".equals(request.getMethod())){
             this.next.handle(target,request,response,isHandled);
+            return;
         }
         String uri = request.getRequestURI();
         if(isExclude(uri)){
             this.next.handle(target,request,response,isHandled);
+            return;
         }
         isHandled[0] = true;
         final String accessToken = request.getHeader(SsoConstant.AUTH_TOKEN_IDENTITY);
