@@ -100,7 +100,7 @@ public final class SsoHandler extends Handler {
                 }
             } catch (Exception e) {
                 LOGGER.error("sso认证失败",e);
-                throw new SystemException("sso认证失败",e);
+                HandlerKit.renderJsonResult(new ResponseData<>(ResponseData.AJAX_STATUS_AUTH_EXPIRED,"认证超时，请重新认证"),request,response,isHandled);
             }
         }
     }
