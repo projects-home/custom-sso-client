@@ -122,7 +122,7 @@ public final class SsoHandler extends Handler {
         if(!StrKit.isBlank(exclude)){
             String[] excludes = exclude.split(",");
             for(String suffix : excludes){
-                if(!StrKit.isBlank(suffix.trim()) && uri.endsWith(suffix.trim().toLowerCase())){
+                if(!StrKit.isBlank(suffix.trim()) && uri.endsWith(suffix.trim())){
                     return true;
                 }
             }
